@@ -1,0 +1,8 @@
+import Link from "next/link";
+const modules=[["🎣","Phishing Simulation","Inspect safe simulated emails and identify warning signs."],["🔗","URL Security","Practice identifying deceptive URL structures."],["🔐","Password Security","Learn strong password and MFA habits."],["🦠","Malware Awareness","Practice safe responses to suspicious files."],["🎭","Social Engineering","Recognize impersonation and manipulation tactics."]];
+export default function Home(){return <main>
+<section className="hero"><div><p className="eyebrow">CYBERSECURITY AWARENESS PLATFORM</p><h1>Learn cybersecurity by <span>doing.</span></h1><p className="heroText">Practice realistic cyber-threat decisions in a completely safe environment. Earn points, unlock badges and track your progress.</p><div className="actions"><Link className="button" href="/training">Start Training →</Link><Link className="button ghost" href="/dashboard">My Dashboard</Link></div></div>
+<div className="heroCard"><div className="shield">🛡️</div><h3>Cyber Readiness</h3><p>Interactive training • Instant feedback • Gamification</p><div className="miniStats"><b>5</b><span>Modules</span><b>100%</b><span>Safe</span></div></div></section>
+<section className="section"><p className="eyebrow">TRAINING MODULES</p><h2>Practice real-world decisions</h2><div className="grid">{modules.map(([i,t,d])=><div className="card" key={t}><div className="icon">{i}</div><h3>{t}</h3><p>{d}</p><Link href="/training">Practice →</Link></div>)}</div></section>
+<section className="cta"><h2>Turn awareness into action.</h2><p>Train, test yourself and become a stronger first line of defense.</p><Link className="button" href="/register">Create Free Training Account</Link></section>
+</main>}

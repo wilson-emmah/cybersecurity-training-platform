@@ -1,0 +1,3 @@
+"use client";
+import {useEffect,useState} from "react"; import {api} from "../../lib/api";
+export default function Leaderboard(){const [rows,setRows]=useState([]);useEffect(()=>{api("/gamification/leaderboard/").then(setRows).catch(()=>{})},[]);return <main className="page"><p className="eyebrow">GAMIFICATION</p><h1>Leaderboard</h1><p className="muted">Compete through learning, not risky real-world activity.</p><div className="panel leaderboard">{rows.map(r=><div className="rankRow" key={r.username}><strong>#{r.rank}</strong><span>{r.username}</span><b>{r.points} pts</b><small>Level {r.level}</small></div>)}{!rows.length&&<p className="muted">No users have points yet.</p>}</div></main>}

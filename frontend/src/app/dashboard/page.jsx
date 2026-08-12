@@ -1,0 +1,10 @@
+"use client";
+import Link from "next/link"; import {useEffect,useState} from "react"; import {api} from "../../lib/api";
+export default function Dashboard(){const [profile,setProfile]=useState(null),[attempts,setAttempts]=useState([]),[badges,setBadges]=useState([]),[error,setError]=useState("");
+useEffect(()=>{Promise.all([api("/auth/me/"),api("/gamification/attempts/"),api("/gamification/my-badges/")]).then(([p,a,b])=>{setProfile(p);setAttempts(a);setBadges(b)}).catch(e=>setError(e.message))},[]);
+if(error)return <main className="page"><div className="empty">{error}. <Link href="/login">Login</Link></div></main>;
+if(!profile)return <main className="page"><div className="empty">Loading dashboard...</div></main>;
+const completed=new Set(attempts.map(a=>a.scenario)).size;
+return <main className="page"><div className="dashTop"><div><p className="eyebrow">MY DASHBOARD</p><h1>Welcome, {profile.username} 👋</h1><p className="muted">Keep building your cybersecurity awareness.</p></div><Link className="button" href="/training">Continue Training</Link></div>
+<div className="stats"><div className="stat"><span>Points</span><strong>{profile.points}</strong></div><div className="stat"><span>Level</span><strong>{profile.level}</strong></div><div className="stat"><span>Badges</span><strong>{badges.length}</strong></div><div className="stat"><span>Streak</span><strong>{profile.training_streak} 🔥</strong></div></div>
+<div className="dashboardGrid"><div className="panel"><h2>Recent Attempts</h2>{attempts.slice(0,8).map(a=><div className="activity" key={a.id}><span>{a.correct?"✓":"!"}</span><div><b>{a.scenario_title}</b><small>{a.correct?"Correct":"Needs review"} • +{a.points_earned} points</small></div></div>)}{attempts.length===0&&<p className="muted">No attempts yet.</p>}</div><div className="panel"><h2>Achievements</h2>{badges.map(b=><div className="achievement" key={b.id}><span>{b.badge.icon}</span><div><b>{b.badge.name}</b><small>{b.badge.description}</small></div></div>)}{badges.length===0&&<p className="muted">Complete challenges to unlock badges.</p>}</div></div></main>}
