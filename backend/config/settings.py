@@ -1,17 +1,12 @@
-import dj_database_url
-from pathlib import Path
 import os
+from pathlib import Path
+
+import dj_database_url
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Load local .env when running locally
 load_dotenv(BASE_DIR / ".env")
-
-
-# ============================================================
-# SECURITY / ENVIRONMENT
-# ============================================================
 
 SECRET_KEY = os.getenv(
     "DJANGO_SECRET_KEY",
@@ -21,18 +16,13 @@ SECRET_KEY = os.getenv(
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 
 ALLOWED_HOSTS = [
-    h.strip()
-    for h in os.getenv(
+    host.strip()
+    for host in os.getenv(
         "ALLOWED_HOSTS",
-        "localhost,127.0.0.1,cybersecurity-training-platform.onrender.com"
+        "localhost,127.0.0.1"
     ).split(",")
-    if h.strip()
+    if host.strip()
 ]
-
-
-# ============================================================
-# APPLICATIONS
-# ============================================================
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -42,12 +32,10 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 
-    # Third-party
     "corsheaders",
     "rest_framework",
     "rest_framework_simplejwt",
 
-    # CyberGuard applications
     "apps.accounts",
     "apps.scenarios",
     "apps.gamification",
@@ -55,18 +43,10 @@ INSTALLED_APPS = [
     "apps.notifications",
 ]
 
-
-# ============================================================
-# MIDDLEWARE
-# ============================================================
-
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-
-    # Static files in production
     "whitenoise.middleware.WhiteNoiseMiddleware",
 
-    # CORS
     "corsheaders.middleware.CorsMiddleware",
 
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -75,11 +55,6 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
 ]
-
-
-# ============================================================
-# URL / APPLICATION CONFIGURATION
-# ============================================================
 
 ROOT_URLCONF = "config.urls"
 
@@ -95,131 +70,44 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
             ],
         },
-    },
+    }
 ]
 
 WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
 
-
-# ============================================================
-# DATABASE
-# ============================================================
-
-DATABASE_URL = os.getenv("DATABASE_URL")
-
-if DATABASE_URL:
-    DATABASES = {
-        "default": dj_database_url.parse(
-            DATABASE_URL,
-            conn_max_age=600,
-            ssl_require=True,
-        )
-    }
-else:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
-        }
-    }
-
-
-# ============================================================
-# CORS
-# ============================================================
-
-# Your Vercel frontend URL.
-#
-# IMPORTANT:
-# Change this to your actual Vercel URL if it is different.
-#
-VERCEL_FRONTEND_URL = os.getenv(
-    "VERCEL_FRONTEND_URL",
-    "https://cybersecurity-training-platform.vercel.app"
-)
-
-CORS_ALLOWED_ORIGINS = [
-    VERCEL_FRONTEND_URL,
-]
-
-
-# Allow local development
-CORS_ALLOWED_ORIGINS += [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-]
-
-
-# Allow credentials such as authentication cookies if needed
-CORS_ALLOW_CREDENTIALS = True
-
-
-# ============================================================
-# CSRF
-# ============================================================
-
-CSRF_TRUSTED_ORIGINS = [
-    VERCEL_FRONTEND_URL,
-    "https://cybersecurity-training-platform.onrender.com",
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-]
-
-
-# ============================================================
-# DJANGO REST FRAMEWORK
-# ============================================================
-
-REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
-    ),
-
-    "DEFAULT_PERMISSION_CLASSES": (
-        "rest_framework.permissions.AllowAny",
-    ),
+DATABASES = {
+    "default": dj_database_url.config(
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+        conn_max_age=600,
+        ssl_require=bool(os.getenv("DATABASE_URL")),
+    )
 }
-
-
-# ============================================================
-# STATIC FILES
-# ============================================================
 
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
-
-STATICFILES_STORAGE = (
-    "whitenoise.storage.CompressedManifestStaticFilesStorage"
-)
-
-
-# ============================================================
-# PROXY / HTTPS
-# ============================================================
 
 SECURE_PROXY_SSL_HEADER = (
     "HTTP_X_FORWARDED_PROTO",
     "https",
 )
 
+# CORS
+CORS_ALLOWED_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv(
+        "CORS_ALLOWED_ORIGINS",
+        "http://localhost:3000"
+    ).split(",")
+    if origin.strip()
+]
 
-# ============================================================
-# SECURITY SETTINGS
-# ============================================================
-
-if not DEBUG:
-    SECURE_SSL_REDIRECT = True
-
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
-
-    SECURE_BROWSER_XSS_FILTER = True
-    SECURE_CONTENT_TYPE_NOSNIFF = True
-
-
-# ============================================================
-# DEFAULT PRIMARY KEY
-# ============================================================
-
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+# CSRF
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv(
+        "CSRF_TRUSTED_ORIGINS",
+        "http://localhost:3000"
+    ).split(",")
+    if origin.strip()
+]
